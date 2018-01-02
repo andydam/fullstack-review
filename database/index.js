@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher');
+mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
 
 let repoSchema = mongoose.Schema({
   id: Number,
@@ -7,10 +7,11 @@ let repoSchema = mongoose.Schema({
   fullName: String,
   htmlUrl: String,
   description: String,
-  createdAt: String,
-  updatedAt: String,
+  createdAt: Date,
+  updatedAt: Date,
   forks: Number,
-  watchers: Number
+  watchers: Number,
+  stars: Number
 });
 
 let Repo = mongoose.model('Repo', repoSchema);
@@ -23,10 +24,11 @@ let save = repo => {
       fullName: repo.full_name,
       htmlUrl: repo.html_url,
       description: repo.description,
-      createdAt: repo.created_at,
-      updatedAt: repo.updated_at,
+      createdAt: new Date(repo.created_at),
+      updatedAt: new Date(repo.updated_at),
       forks: repo.forks_count,
-      watchers: repo.watchers_count
+      watchers: repo.watchers_count,
+      stars: repo.stargazers_count
     }, (err, repoDoc) => err ? reject(err) : resolve(repoDoc));
   });
 };
