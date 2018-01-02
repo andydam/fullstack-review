@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
 
 let repoSchema = mongoose.Schema({
-  id: Number,
+  id: {type: Number, unique: true},
   name: String,
   fullName: String,
   htmlUrl: String,
@@ -29,8 +29,35 @@ let save = repo => {
       forks: repo.forks_count,
       watchers: repo.watchers_count,
       stars: repo.stargazers_count
-    }, (err, repoDoc) => err ? reject(err) : resolve(repoDoc));
+    }, (err, repoDoc) => {
+      if (err) {
+        if (err.code === 11000) {
+          console.log(`Duplicate repo entry for ${repo.id} - ${repo.name}`);
+          resolve({
+            id: repo.id,
+            fullName: repo.full_name,
+            duplicate: true
+          });
+        }
+        reject(err);
+      } else {
+        console.log(`Repo ${repoDoc.id} - ${repoDoc.name} added to database`);
+        resolve(repoDoc);
+      }
+    });
+  });
+};
+
+let get = () => {
+  return new Promise((resolve, reject) => {
+    Repo.find(null, null, {
+      limit: 25,
+      sort: {
+        stars: -1
+      }
+    }, (err, docs) => err ? reject(err) : resolve(docs));
   });
 };
 
 module.exports.save = save;
+module.exports.get = get;
