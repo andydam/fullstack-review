@@ -15,10 +15,20 @@ let repoSchema = mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (/* TODO */) => {
-  // TODO: Your code here
-  // This function should save a repo or repos to
-  // the MongoDB
-}
+let save = repo => {
+  return new Promise((resolve, reject) => {
+    Repo.create({
+      id: repo.id,
+      name: repo.name,
+      fullName: repo.full_name,
+      htmlUrl: repo.html_url,
+      description: repo.description,
+      createdAt: repo.created_at,
+      updatedAt: repo.updated_at,
+      forks: repo.forks_count,
+      watchers: repo.watchers_count
+    }, (err, repoDoc) => err ? reject(err) : resolve(repoDoc));
+  });
+};
 
 module.exports.save = save;
