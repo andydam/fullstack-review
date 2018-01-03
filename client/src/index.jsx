@@ -23,15 +23,30 @@ class App extends React.Component {
     })
       .then(resp => resp.json())
       .then(data => {
-        if (data.exists) {
-          this.setState({
-            status: `${term}'s repos already on server`
-          });
-        } else {
+        switch (data.status) {
+        case 0:
           this.setState({
             status: `loaded ${data.imported} repos from ${term}`
           });
           this.fetchRepos();
+          break;
+        case 1:
+          this.setState({
+            status: `${term}'s repos already on server`
+          });
+          break;
+        case 2:
+          this.setState({
+            status: `error finding user: ${data.message}`
+          });
+          break;
+        case 3:
+          this.setState({
+            status: `error loading repos: ${data.message}`
+          });
+          break;
+        default:
+          console.warn('unexpected response from server', data);
         }
       })
       .catch(err => console.error(err));
@@ -49,12 +64,8 @@ class App extends React.Component {
 
   fetchRepos() {
     fetch('http://127.0.0.1:1128/repos')
-      .then(resp => {
-        return resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body);
-      })
-      .then(data => {
-        this.setState({repos: data});
-      })
+      .then(resp => resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body))
+      .then(data => this.setState({repos: data}))
       .catch(err => console.error(err));
   }
 }

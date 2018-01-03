@@ -16,49 +16,33 @@ app.use((req, res, next) => {
 
 app.use(express.static(__dirname + '/../client/dist'));
 
-app.post('/repos', (req, res) => {
-  db.checkUser(req.body.username.toLowerCase())
-    .then(isInDb => {
-      if (isInDb) {
-        return Promise.reject({imported: 0, exists: true});
-      }
-      return getUserByUsername(req.body.username);
-    })
-    .then(user => {
-      return user.message ? Promise.reject(user.message) : db.saveUser(user);
-    })
-    .then(() => getReposByUsername(req.body.username))
-    .then(data => {
-      return data.message ? Promise.reject(data.message) : Promise.all(data.map(repo => db.save(repo)));
-    })
-    .then(repoDocs => {
-      res.statusCode = 200;
-      res.end(JSON.stringify({
-        imported: repoDocs.length,
-        exists: false
-      }));
-    })
-    .catch(err => {
-      err.exists ? res.statusCode = 200 : res.statusCode = 500;
-      res.end(JSON.stringify(err));
-    });
-});
+app.post('/repos', (req, res) => db.checkUser(req.body.username.toLowerCase())
+  .then(isInDb =>{
+    if (isInDb) {
+      return Promise.reject({status: 1});
+    }
+    return getUserByUsername(req.body.username);
+  })
+  .then(user => {
+    if (user.message) {
+      return Promise.reject({message: user.message, status: 2});
+    }
+    return db.saveUser(user);
+  })
+  .then(() => getReposByUsername(req.body.username))
+  .then(data => {
+    if (data.message) {
+      return Promise.reject({message: data.message, status: 3});
+    }
+    return Promise.all(data.map(repo => db.save(repo)));
+  })
+  .then(repoDocs => res.json({imported: repoDocs.length, status: 0}))
+  .catch(err => err.status ? res.json(err) : res.status(500).json(err)));
 
-app.get('/repos', (req, res) => {
-  db.get()
-    .then(repos => {
-      res.statusCode = 200;
-      res.end(JSON.stringify(repos));
-    })
-    .catch(err => {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-    });
-});
+app.get('/repos', (req, res) => db.get()
+  .then(repos => res.json(repos))
+  .catch(err => res.status(500).end(JSON.stringify(err))));
 
 let port = 1128;
 
-app.listen(port, function() {
-  console.log(`listening on port ${port}`);
-});
-
+app.listen(port, console.log(`listening on port ${port}`));
