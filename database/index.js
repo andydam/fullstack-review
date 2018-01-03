@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
+mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true}, () => mongoose.connection.db.dropDatabase());
 
 // 
 // Repo model (used for storing repo data)
@@ -19,7 +19,7 @@ let repoSchema = mongoose.Schema({
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = repo => {
+let saveRepo = repo => {
   return new Promise((resolve, reject) => Repo.create({
     id: repo.id,
     name: repo.name,
@@ -49,7 +49,7 @@ let save = repo => {
   }));
 };
 
-let get = () => {
+let getRepos = () => {
   return new Promise((resolve, reject) => Repo.find(null, null, {
     limit: 25,
     sort: {
@@ -80,9 +80,18 @@ let checkUser = user => {
     (err, userDoc) => err ? reject(err) : resolve(Boolean(userDoc))));
 };
 
+let getUsers = () => {
+  return new Promise((resolve, reject) => User.find(null, null, {
+    sort: {
+      name: 1
+    }
+  }, (err, docs) => err ? reject(err) : resolve(docs)));
+};
+
 module.exports = {
-  save,
-  get,
+  saveRepo,
+  getRepos,
   saveUser,
-  checkUser
+  checkUser,
+  getUsers
 };

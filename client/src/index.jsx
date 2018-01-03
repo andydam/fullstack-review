@@ -3,15 +3,21 @@ import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import AddRepo from './components/AddRepo.jsx';
 import RepoList from './components/RepoList.jsx';
+import UserList from './components/UserList.jsx';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
       repos: [],
+      users: [],
       status: ''
     };
+  }
+
+  componentWillMount() {
     this.fetchRepos();
+    this.fetchUsers();
   }
 
   addRepo(term) {
@@ -29,6 +35,7 @@ class App extends React.Component {
             status: `loaded ${data.imported} repos from ${term}`
           });
           this.fetchRepos();
+          this.fetchUsers();
           break;
         case 1:
           this.setState({
@@ -57,6 +64,7 @@ class App extends React.Component {
       <div>
         <h1>Github Fetcher</h1>
         <AddRepo addStatus={this.state.status} onAddRepo={e => this.addRepo(e)} />
+        <UserList users={this.state.users} />
         <RepoList repos={this.state.repos} />
       </div>
     );
@@ -66,6 +74,13 @@ class App extends React.Component {
     fetch('http://127.0.0.1:1128/repos')
       .then(resp => resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body))
       .then(data => this.setState({repos: data}))
+      .catch(err => console.error(err));
+  }
+
+  fetchUsers() {
+    fetch('http://127.0.0.1:1128/users')
+      .then(resp => resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body))
+      .then(data => this.setState({users: data}))
       .catch(err => console.error(err));
   }
 }

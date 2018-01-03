@@ -34,12 +34,16 @@ app.post('/repos', (req, res) => db.checkUser(req.body.username.toLowerCase())
     if (data.message) {
       return Promise.reject({message: data.message, status: 3});
     }
-    return Promise.all(data.map(repo => db.save(repo)));
+    return Promise.all(data.map(repo => db.saveRepo(repo)));
   })
   .then(repoDocs => res.json({imported: repoDocs.length, status: 0}))
   .catch(err => err.status ? res.json(err) : res.status(500).json(err)));
 
-app.get('/repos', (req, res) => db.get()
+app.get('/repos', (req, res) => db.getRepos()
+  .then(repos => res.json(repos))
+  .catch(err => res.status(500).json(err)));
+
+app.get('/users', (req, res) => db.getUsers()
   .then(repos => res.json(repos))
   .catch(err => res.status(500).json(err)));
 
