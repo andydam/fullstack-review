@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true});
 
+// 
+// Repo model (used for storing repo data)
+// 
 let repoSchema = mongoose.Schema({
   id: {type: Number, unique: true},
   name: String,
@@ -59,5 +62,34 @@ let get = () => {
   });
 };
 
-module.exports.save = save;
-module.exports.get = get;
+// 
+// User model (used for storing already processed users)
+// 
+let userSchema = mongoose.Schema({
+  id: {type: Number, unique: true},
+  name: String
+});
+
+let User = mongoose.model('User', userSchema);
+
+let saveUser = user => {
+  return new Promise((resolve, reject) => {
+    User.create({
+      id: user.id,
+      name: user.login.toLowerCase()
+    }, (err, userDoc) => err ? reject(err) : resolve(userDoc));
+  });
+};
+
+let checkUser = user => {
+  return new Promise((resolve, reject) => {
+    User.count({name: user}, (err, userDoc) => err ? reject(err) : resolve(Boolean(userDoc)));
+  });
+};
+
+module.exports = {
+  save,
+  get,
+  saveUser,
+  checkUser
+};

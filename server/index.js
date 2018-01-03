@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const {getReposByUsername} = require('../helpers/github.js');
+const {getReposByUsername, getUserByUsername} = require('../helpers/github.js');
 const db = require('../database');
 let app = express();
 
@@ -16,20 +16,27 @@ app.use((req, res, next) => {
 
 app.use(express.static(__dirname + '/../client/dist'));
 
-app.post('/repos', (req, res) => {
-  getReposByUsername(req.body.username)
-    .then(data => {
-      if (data.message) {
-        return Promise.reject(err);
+app.post('/repos', (req, res, next) => {
+  db.checkUser(req.body.username.toLowerCase())
+    .then(isInDb => {
+      if (isInDb) {
+        return Promise.reject('USEREXISTS');
       }
-      return Promise.all(data.map(repo => db.save(repo)));
+      return getUserByUsername(req.body.username);
+    })
+    .then(user => {
+      return user.message ? Promise.reject(user.message) : db.saveUser(user);
+    })
+    .then(() => getReposByUsername(req.body.username))
+    .then(data => {
+      return data.message ? Promise.reject(data.message) : Promise.all(data.map(repo => db.save(repo)));
     })
     .then(repoDocs => {
       res.statusCode = 200;
       res.end(JSON.stringify(repoDocs));
     })
     .catch(err => {
-      res.statusCode = 500;
+      err === 'USEREXISTS' ? res.statusCode = 200 : res.statusCode = 500;
       res.end(JSON.stringify(err));
     });
 });
