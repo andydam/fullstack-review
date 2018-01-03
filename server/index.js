@@ -41,7 +41,7 @@ app.post('/repos', (req, res) => db.checkUser(req.body.username.toLowerCase())
 
 app.get('/repos', (req, res) => db.get()
   .then(repos => res.json(repos))
-  .catch(err => res.status(500).end(JSON.stringify(err))));
+  .catch(err => res.status(500).json(err)));
 
 let port = 1128;
 

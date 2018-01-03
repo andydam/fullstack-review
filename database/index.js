@@ -20,46 +20,42 @@ let repoSchema = mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let save = repo => {
-  return new Promise((resolve, reject) => {
-    Repo.create({
-      id: repo.id,
-      name: repo.name,
-      fullName: repo.full_name,
-      htmlUrl: repo.html_url,
-      description: repo.description,
-      createdAt: new Date(repo.created_at),
-      updatedAt: new Date(repo.updated_at),
-      forks: repo.forks_count,
-      watchers: repo.watchers_count,
-      stars: repo.stargazers_count
-    }, (err, repoDoc) => {
-      if (err) {
-        if (err.code === 11000) {
-          console.log(`Duplicate repo entry for ${repo.id} - ${repo.name}`);
-          resolve({
-            id: repo.id,
-            fullName: repo.full_name,
-            duplicate: true
-          });
-        }
-        reject(err);
-      } else {
-        console.log(`Repo ${repoDoc.id} - ${repoDoc.name} added to database`);
-        resolve(repoDoc);
+  return new Promise((resolve, reject) => Repo.create({
+    id: repo.id,
+    name: repo.name,
+    fullName: repo.full_name,
+    htmlUrl: repo.html_url,
+    description: repo.description,
+    createdAt: new Date(repo.created_at),
+    updatedAt: new Date(repo.updated_at),
+    forks: repo.forks_count,
+    watchers: repo.watchers_count,
+    stars: repo.stargazers_count
+  }, (err, repoDoc) => {
+    if (err) {
+      if (err.code === 11000) {
+        console.log(`Duplicate repo entry for ${repo.id} - ${repo.name}`);
+        resolve({
+          id: repo.id,
+          fullName: repo.full_name,
+          duplicate: true
+        });
       }
-    });
-  });
+      reject(err);
+    } else {
+      console.log(`Repo ${repoDoc.id} - ${repoDoc.name} added to database`);
+      resolve(repoDoc);
+    }
+  }));
 };
 
 let get = () => {
-  return new Promise((resolve, reject) => {
-    Repo.find(null, null, {
-      limit: 25,
-      sort: {
-        stars: -1
-      }
-    }, (err, docs) => err ? reject(err) : resolve(docs));
-  });
+  return new Promise((resolve, reject) => Repo.find(null, null, {
+    limit: 25,
+    sort: {
+      stars: -1
+    }
+  }, (err, docs) => err ? reject(err) : resolve(docs)));
 };
 
 // 
@@ -73,18 +69,15 @@ let userSchema = mongoose.Schema({
 let User = mongoose.model('User', userSchema);
 
 let saveUser = user => {
-  return new Promise((resolve, reject) => {
-    User.create({
-      id: user.id,
-      name: user.login.toLowerCase()
-    }, (err, userDoc) => err ? reject(err) : resolve(userDoc));
-  });
+  return new Promise((resolve, reject) => User.create({
+    id: user.id,
+    name: user.login.toLowerCase()
+  }, (err, userDoc) => err ? reject(err) : resolve(userDoc)));
 };
 
 let checkUser = user => {
-  return new Promise((resolve, reject) => {
-    User.count({name: user}, (err, userDoc) => err ? reject(err) : resolve(Boolean(userDoc)));
-  });
+  return new Promise((resolve, reject) => User.count({name: user}, 
+    (err, userDoc) => err ? reject(err) : resolve(Boolean(userDoc))));
 };
 
 module.exports = {
