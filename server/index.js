@@ -16,11 +16,11 @@ app.use((req, res, next) => {
 
 app.use(express.static(__dirname + '/../client/dist'));
 
-app.post('/repos', (req, res, next) => {
+app.post('/repos', (req, res) => {
   db.checkUser(req.body.username.toLowerCase())
     .then(isInDb => {
       if (isInDb) {
-        return Promise.reject('USEREXISTS');
+        return Promise.reject({imported: 0, exists: true});
       }
       return getUserByUsername(req.body.username);
     })
@@ -33,10 +33,13 @@ app.post('/repos', (req, res, next) => {
     })
     .then(repoDocs => {
       res.statusCode = 200;
-      res.end(JSON.stringify(repoDocs));
+      res.end(JSON.stringify({
+        imported: repoDocs.length,
+        exists: false
+      }));
     })
     .catch(err => {
-      err === 'USEREXISTS' ? res.statusCode = 200 : res.statusCode = 500;
+      err.exists ? res.statusCode = 200 : res.statusCode = 500;
       res.end(JSON.stringify(err));
     });
 });

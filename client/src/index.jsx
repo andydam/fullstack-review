@@ -8,7 +8,8 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      repos: []
+      repos: [],
+      status: ''
     };
     this.fetchRepos();
   }
@@ -22,7 +23,16 @@ class App extends React.Component {
     })
       .then(resp => resp.json())
       .then(data => {
-        this.fetchRepos();
+        if (data.exists) {
+          this.setState({
+            status: `${term}'s repos already on server`
+          });
+        } else {
+          this.setState({
+            status: `loaded ${data.imported} repos from ${term}`
+          });
+          this.fetchRepos();
+        }
       })
       .catch(err => console.error(err));
   }
@@ -31,7 +41,7 @@ class App extends React.Component {
     return (
       <div>
         <h1>Github Fetcher</h1>
-        <AddRepo onAddRepo={e => this.addRepo(e)} />
+        <AddRepo addStatus={this.state.status} onAddRepo={e => this.addRepo(e)} />
         <RepoList repos={this.state.repos} />
       </div>
     );
@@ -39,7 +49,9 @@ class App extends React.Component {
 
   fetchRepos() {
     fetch('http://127.0.0.1:1128/repos')
-      .then(resp => resp.json())
+      .then(resp => {
+        return resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body);
+      })
       .then(data => {
         this.setState({repos: data});
       })

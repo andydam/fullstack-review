@@ -22,6 +22,7 @@ class AddRepo extends React.Component {
     return (
       <div>
         <h4>Add more repos!</h4>
+        <h5>{this.props.addStatus}</h5>
         Enter a github username: <input value={this.state.terms} onChange={e => this.onChange(e)} />       
         <button onClick={e => this.addRepo(e)}> Add Repos </button>
       </div>
