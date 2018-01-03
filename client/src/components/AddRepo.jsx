@@ -1,4 +1,5 @@
 import React from 'react';
+import {Alert, Button, Fade, FormControl, FormGroup, Label, InputGroup, Input, InputGroupAddon} from 'reactstrap';
 
 class AddRepo extends React.Component {
   constructor(props) {
@@ -21,10 +22,16 @@ class AddRepo extends React.Component {
   render() {
     return (
       <div>
-        <h4>Add more repos!</h4>
-        <h5>{this.props.addStatus}</h5>
-        Enter a github username: <input value={this.state.terms} onChange={e => this.onChange(e)} />       
-        <button onClick={e => this.addRepo(e)}> Add Repos </button>
+        <Fade in={this.props.addStatus}>
+          <Alert color='secondary'> {this.props.addStatus} </Alert>
+        </Fade>
+        <FormGroup>
+          <Label>Enter a github username:</Label>
+          <InputGroup>
+            <Input value={this.state.terms} onChange={e => this.onChange(e)} />
+            <InputGroupAddon><Button onClick={e => this.addRepo(e)}> Add Repos </Button></InputGroupAddon>
+          </InputGroup>
+        </FormGroup>
       </div>
     ); 
   }

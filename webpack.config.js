@@ -1,4 +1,5 @@
 var path = require('path');
+var webpack = require('webpack');
 var SRC_DIR = path.join(__dirname, '/client/src');
 var DIST_DIR = path.join(__dirname, '/client/dist');
 
@@ -8,16 +9,22 @@ module.exports = {
     filename: 'bundle.js',
     path: DIST_DIR
   },
-  module : {
-    loaders : [
+  module: {
+    loaders: [
       {
-        test : /\.jsx?/,
-        include : SRC_DIR,
-        loader : 'babel-loader',      
+        test: /\.jsx?/,
+        include: SRC_DIR,
+        loader: 'babel-loader',      
         query: {
           presets: ['react', 'es2015']
         }
       }
     ]
-  }
+  },
+  plugins: [new webpack.ProvidePlugin({
+    jQuery: 'jquery',
+    $: 'jquery',
+    jquery: 'jquery',
+    Popper: ['popper.js', 'default']
+  })]
 };

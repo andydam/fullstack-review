@@ -1,9 +1,10 @@
 import React from 'react';
+import {ListGroupItem} from 'reactstrap';
 
 const RepoListEntry = ({repo}) => (
-  <li>
+  <ListGroupItem>
     <a href={repo.htmlUrl}>{repo.fullName}</a> - {repo.stars} stars
-  </li>
+  </ListGroupItem>
 );
 
 export default RepoListEntry;
