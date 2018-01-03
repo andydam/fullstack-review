@@ -47,6 +47,6 @@ app.get('/users', (req, res) => db.getUsers()
   .then(repos => res.json(repos))
   .catch(err => res.status(500).json(err)));
 
-let port = 1128;
+let port = process.env.PORT || 1128;
 
 app.listen(port, console.log(`listening on port ${port}`));

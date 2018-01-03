@@ -22,7 +22,7 @@ class AddRepo extends React.Component {
   render() {
     return (
       <div>
-        <Fade in={this.props.addStatus}>
+        <Fade in={Boolean(this.props.addStatus)}>
           <Alert color='secondary'> {this.props.addStatus} </Alert>
         </Fade>
         <FormGroup>

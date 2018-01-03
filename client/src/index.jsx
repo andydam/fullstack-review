@@ -25,7 +25,7 @@ class App extends React.Component {
   addRepo(term) {
     this.toggleLoading(true);
     console.log(`${term} was POSTed`);
-    fetch('http://127.0.0.1:1128/repos', {
+    fetch('/repos', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({username: term})
@@ -84,7 +84,7 @@ class App extends React.Component {
 
   fetchRepos() {
     this.toggleLoading(true);
-    fetch('http://127.0.0.1:1128/repos')
+    fetch('/repos')
       .then(resp => resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body))
       .then(data => this.setState({repos: data, isLoading: false}))
       .catch(err => console.error(err));
@@ -92,7 +92,7 @@ class App extends React.Component {
 
   fetchUsers() {
     this.toggleLoading(true);
-    fetch('http://127.0.0.1:1128/users')
+    fetch('/users')
       .then(resp => resp.status === 200 ? resp.json() : Promise.reject(resp.status + resp.body))
       .then(data => this.setState({users: data, isLoading: false}))
       .catch(err => console.error(err));

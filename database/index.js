@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher', {useMongoClient: true}, () => mongoose.connection.db.dropDatabase());
+const dburl = process.env.MONGO_URL ? `${process.env.MONGO_URL}` : 'mongodb://localhost/fetcher';
+mongoose.connect(dburl, {useMongoClient: true});
 
 // 
 // Repo model (used for storing repo data)
