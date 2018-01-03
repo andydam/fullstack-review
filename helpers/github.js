@@ -4,7 +4,7 @@ const config = require('../config.js');
 let getReposByUsername = username => {
   return new Promise((resolve, reject) => {
     request({
-      url: `https://api.github.com/users/${username}/repos`,
+      url: `https://api.github.com/users/${username}/repos?sort=updated`,
       headers: {
         'User-Agent': 'request',
         'Authorization': `token ${config.TOKEN}`
